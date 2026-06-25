@@ -1,14 +1,12 @@
 # Build stage: Maven + Temurin 26 JDK
-FROM eclipse-temurin:26-jdk-noble AS build
+FROM maven:3.9.16-eclipse-temurin-26-noble AS build
 
 WORKDIR /workspace
 
-COPY .mvn .mvn
-COPY mvnw pom.xml ./
-RUN chmod +x mvnw && ./mvnw -B -DskipTests dependency:go-offline
-
-COPY src ./src
-RUN ./mvnw -B -DskipTests package
+COPY pom.xml .
+RUN mvn -B -f pom.xml -DskipTests dependency:go-offline
+COPY . .
+RUN mvn -B -DskipTests package
 
 FROM eclipse-temurin:26-jre-noble
 
