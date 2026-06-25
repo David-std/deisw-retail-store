@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   tools {
-    maven 'MAVEN_3_9_11'
+    maven 'MAVEN_3_9_16'
     jdk 'JDK_26'
   }
 
@@ -15,7 +15,7 @@ pipeline {
   stages {
     stage('Compile Project') {
       steps {
-        withMaven(maven: 'MAVEN_3_9_11') {
+        withMaven(maven: 'MAVEN_3_9_16') {
           sh 'mvn clean compile'
         }
       }
@@ -23,7 +23,7 @@ pipeline {
 
     stage('Validate Checkstyle') {
       steps {
-        withMaven(maven: 'MAVEN_3_9_11') {
+        withMaven(maven: 'MAVEN_3_9_16') {
           sh 'mvn checkstyle:check'
         }
       }
@@ -31,7 +31,7 @@ pipeline {
 
     stage('Validate Unit Tests') {
       steps {
-        withMaven(maven: 'MAVEN_3_9_11') {
+        withMaven(maven: 'MAVEN_3_9_16') {
           sh 'mvn test'
         }
       }
@@ -39,7 +39,7 @@ pipeline {
 
     stage('Validate Test Coverage') {
       steps {
-        withMaven(maven: 'MAVEN_3_9_11') {
+        withMaven(maven: 'MAVEN_3_9_16') {
           sh 'mvn clean verify jacoco:report'
           sh 'mvn jacoco:check'
         }
@@ -48,12 +48,14 @@ pipeline {
 
     stage('SonarQube Analysis') {
       steps {
-        withSonarQubeEnv('MiSonarServer') {
-          sh '''
-            mvn clean verify sonar:sonar \
-              -Dsonar.projectKey=retail-store-u20231b504 \
-              -Dsonar.projectName=retail-store-u20231b504
-          '''
+        withMaven(maven: 'MAVEN_3_9_16') {
+          withSonarQubeEnv('MiSonarServer') {
+            sh '''
+              mvn clean verify sonar:sonar \
+                -Dsonar.projectKey=retail-store-u20231b504 \
+                -Dsonar.projectName=retail-store-u20231b504
+            '''
+          }
         }
 
         script {
